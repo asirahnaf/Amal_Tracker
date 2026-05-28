@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>দৈনিক আমল চেকলিস্ট</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f0efe8;
+  --text:#1a1a18;--text2:#5f5e5a;--text3:#888780;
+  --border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.22);
+  --green50:#EAF3DE;--green800:#27500A;--green600:#3B6D11;--green400:#639922;
+  --blue50:#E6F1FB;--blue800:#0C447C;
+  --purple50:#EEEDFE;--purple800:#3C3489;
+  --amber50:#FAEEDA;--amber800:#633806;
+  --coral50:#FAECE7;--coral800:#712B13;
+  --teal50:#E1F5EE;--teal800:#085041;
+  --gray50:#F1EFE8;--gray800:#444441;
+  --pink50:#FBEAF0;--pink800:#72243E;
+  --radius:8px;--radius-lg:12px
+}
+.dark{
+  --bg:#1c1c1a;--bg2:#252523;--bg3:#2e2e2b;
+  --text:#f0efe8;--text2:#b4b2a9;--text3:#888780;
+  --border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.2);
+  --green50:#173404;--green800:#C0DD97;--green600:#97C459;--green400:#639922;
+  --blue50:#042C53;--blue800:#B5D4F4;
+  --purple50:#26215C;--purple800:#CECBF6;
+  --amber50:#412402;--amber800:#FAC775;
+  --coral50:#4A1B0C;--coral800:#F5C4B3;
+  --teal50:#04342C;--teal800:#9FE1CB;
+  --gray50:#2C2C2A;--gray800:#D3D1C7;
+  --pink50:#4B1528;--pink800:#F4C0D1
+}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Segoe UI',system-ui,sans-serif;
+  font-size:14px;transition:background 0.2s,color 0.2s;
+  min-height:100vh
+}
+.wrap{padding:16px;max-width:960px;margin:0 auto}
+/* ── topbar ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.topbar h1{font-size:18px;font-weight:600;color:var(--text)}
+.topbar-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{
+  background:var(--bg2);border:0.5px solid var(--border2);
+  border-radius:var(--radius);padding:6px 13px;font-size:12px;
+  color:var(--text);cursor:pointer;display:inline-flex;align-items:center;gap:5px;
+  transition:background 0.15s
+}
+.btn:hover{background:var(--bg3)}
+.btn.active{background:var(--green50);color:var(--green800);border-color:var(--green600)}
+/* ── meta ── */
+.meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+@media(max-width:500px){.meta{grid-template-columns:1fr}}
+.meta-field label{font-size:11px;color:var(--text3);display:block;margin-bottom:3px}
+.meta-field input{
+  background:var(--bg2);border:0.5px solid var(--border);
+  border-radius:var(--radius);padding:7px 10px;font-size:13px;
+  color:var(--text);width:100%;outline:none
+}
+.meta-field input:focus{border-color:var(--border2)}
+/* ── stats ── */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:14px}
+.stat{background:var(--bg2);border-radius:var(--radius);padding:10px 14px}
+.stat-label{font-size:11px;color:var(--text3);margin-bottom:4px}
+.stat-val{font-size:24px;font-weight:600;color:var(--text);line-height:1.2}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:3px}
+/* ── quote ── */
+.quote{
+  border-left:3px solid var(--green400);padding:10px 14px;
+  margin-bottom:14px;background:var(--green50);
+  border-radius:0 var(--radius) var(--radius) 0
+}
+.quote p{font-size:13px;color:var(--green800);line-height:1.7}
+.quote cite{font-size:11px;color:var(--green600);display:block;margin-top:4px}
+/* ── day selector ── */
+.day-selector{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.day-selector span{font-size:12px;color:var(--text3)}
+/* ── section card ── */
+.section{border:0.5px solid var(--border);border-radius:var(--radius-lg);margin-bottom:8px;overflow:hidden}
+.sec-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 14px;cursor:pointer;user-select:none
+}
+.sec-title{font-size:13px;font-weight:600}
+.sec-right{display:flex;align-items:center;gap:8px}
+.pbar-wrap{width:80px;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.pbar{height:100%;border-radius:3px;transition:width 0.4s ease}
+.pbar.green{background:var(--green400)}
+.pbar.blue{background:#378ADD}
+.pbar.purple{background:#7F77DD}
+.pbar.amber{background:#EF9F27}
+.pbar.coral{background:#D85A30}
+.pbar.teal{background:#1D9E75}
+.pbar.gray{background:#888780}
+.pct{font-size:11px;color:var(--text3);min-width:32px;text-align:right}
+.chevron{font-size:14px;color:var(--text3);transition:transform 0.2s;display:inline-block}
+/* ── column header ── */
+.col-head{display:flex;background:var(--bg2);border-bottom:0.5px solid var(--border)}
+.col-head-label{flex:1;padding:5px 14px;font-size:11px;color:var(--text3)}
+.col-head-days{display:flex;flex-shrink:0}
+.ch-day{
+  width:27px;height:27px;display:flex;align-items:center;
+  justify-content:center;border-left:0.5px solid var(--border);
+  font-size:10px;color:var(--text3)
+}
+/* ── rows ── */
+.row{display:flex;border-top:0.5px solid var(--border);align-items:stretch;min-height:35px;transition:background 0.2s}
+.row.completed{background:var(--green50)}
+.row-label{
+  flex:1;padding:6px 14px;font-size:13px;color:var(--text);
+  display:flex;align-items:center;justify-content:space-between;min-width:0
+}
+.row-label span{flex:1;min-width:0;line-height:1.4}
+.del-btn{
+  opacity:0;background:none;border:none;cursor:pointer;
+  color:var(--text3);font-size:12px;padding:0 4px;flex-shrink:0;
+  transition:opacity 0.15s
+}
+.row:hover .del-btn{opacity:1}
+.day-cells{display:flex;flex-shrink:0}
+.dc{
+  width:27px;border-left:0.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:10px;color:var(--text3);transition:background 0.15s
+}
+.dc:hover{background:var(--bg3)}
+.dc.on{background:var(--green50);color:var(--green600)}
+/* ── add row ── */
+.add-row{
+  display:flex;align-items:center;border-top:0.5px solid var(--border);
+  padding:5px 8px;background:var(--bg)
+}
+.add-row input{
+  flex:1;background:transparent;border:none;font-size:13px;
+  color:var(--text2);outline:none;padding:4px 6px
+}
+.add-row input::placeholder{color:var(--text3)}
+.add-btn{
+  background:none;border:none;cursor:pointer;color:var(--text3);
+  font-size:20px;line-height:1;padding:0 4px;transition:color 0.15s
+}
+.add-btn:hover{color:var(--text)}
+/* ── weekly ── */
+.weekly-sec,
+.monthly-sec{border:0.5px solid var(--border);border-radius:var(--radius-lg);margin-bottom:8px;overflow:hidden}
+.wrow,
+.mrow{display:flex;border-top:0.5px solid var(--border);min-height:35px;align-items:stretch}
+.wrow:first-child,.mrow:first-child{border-top:none}
+.wlabel,.mlabel{flex:1;padding:6px 14px;font-size:13px;color:var(--text);display:flex;align-items:center}
+.wcell{
+  flex:1;border-left:0.5px solid var(--border);display:flex;
+  align-items:center;justify-content:center;cursor:pointer;
+  font-size:11px;color:var(--text3);transition:background 0.15s;min-width:60px
+}
+.wcell:hover{background:var(--bg3)}
+.wcell.on{background:var(--green50);color:var(--green600);font-weight:600}
+.mcell{
+  width:46px;border-left:0.5px solid var(--border);display:flex;
+  align-items:center;justify-content:center;cursor:pointer;
+  font-size:11px;color:var(--text3);transition:background 0.15s
+}
+.mcell:hover{background:var(--bg3)}
+.mcell.on{background:var(--green50);color:var(--green600);font-weight:600}
+/* ── note box ── */
+.note-box{border:0.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:10px}
+.note-head{padding:9px 14px;background:var(--bg2);font-size:13px;font-weight:600;color:var(--text)}
+.note-box textarea{
+  width:100%;background:var(--bg);border:none;
+  border-top:0.5px solid var(--border);font-size:13px;
+  color:var(--text);padding:10px 14px;resize:vertical;
+  outline:none;font-family:inherit;min-height:80px
+}
+/* ── heatmap ── */
+.heatmap-box{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:10px}
+.heatmap-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px}
+.hm-grid{display:grid;grid-template-columns:repeat(31,1fr);gap:3px;margin-bottom:8px}
+.hm-cell{
+  aspect-ratio:1;border-radius:3px;background:var(--border);
+  cursor:default;transition:transform 0.1s;position:relative
+}
+.hm-cell:hover{transform:scale(1.3)}
+.hm-cell .tip{
+  display:none;position:absolute;bottom:120%;left:50%;transform:translateX(-50%);
+  background:var(--bg3);border:0.5px solid var(--border2);border-radius:4px;
+  padding:3px 7px;font-size:11px;color:var(--text);white-space:nowrap;z-index:10
+}
+.hm-cell:hover .tip{display:block}
+.hm-cell.lvl1{background:#C0DD97}
+.hm-cell.lvl2{background:#97C459}
+.hm-cell.lvl3{background:#639922}
+.hm-cell.lvl4{background:#27500A}
+.dark .hm-cell.lvl4{background:#C0DD97}
+.dark .hm-cell.lvl3{background:#97C459}
+.dark .hm-cell.lvl2{background:#639922}
+.dark .hm-cell.lvl1{background:#3B6D11}
+.hm-legend{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)}
+.hm-sq{width:11px;height:11px;border-radius:2px}
+/* ── print ── */
+@media print{
+  .topbar-right,.day-selector,.add-row,.del-btn{display:none!important}
+  body{background:#fff;color:#000}
+  .section,.weekly-sec,.monthly-sec,.note-box,.heatmap-box{break-inside:avoid}
+}
+/* ── scrollbar ── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <h1>&#x1F4D6; দৈনিক আমল চেকলিস্ট</h1>
+    <div class="topbar-right">
+      <button class="btn" id="darkBtn" onclick="toggleDark()">&#9790; ডার্ক মোড</button>
+      <button class="btn" onclick="window.print()">&#128438; প্রিন্ট</button>
+      <button class="btn" onclick="resetAll()">&#8635; রিসেট</button>
+    </div>
+  </div>
+
+  <div class="meta">
+    <div class="meta-field"><label>ব্যক্তির নাম</label><input type="text" id="uname" placeholder="নাম লিখুন..."></div>
+    <div class="meta-field"><label>মাসের নাম</label><input type="text" id="umonth" placeholder="মাস..."></div>
+    <div class="meta-field"><label>সাল</label><input type="text" id="uyear" placeholder="সাল..."></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">আজকের অগ্রগতি (দিন ১)</div>
+      <div class="stat-val" id="todayPct">0%</div>
+      <div class="stat-sub" id="todaySub">০ / ০ আমল</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">সর্বোচ্চ স্ট্রিক &#9733;</div>
+      <div class="stat-val" id="streakVal">0 দিন</div>
+      <div class="stat-sub">ধারাবাহিক সম্পন্ন</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">সেরা দিন</div>
+      <div class="stat-val" id="bestDay">—</div>
+      <div class="stat-sub">সর্বোচ্চ আমল সম্পন্ন</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">মাসিক গড়</div>
+      <div class="stat-val" id="monthAvg">0%</div>
+      <div class="stat-sub">সম্পন্নের হার</div>
+    </div>
+  </div>
+
+  <div class="quote">
+    <p>প্রত্যেকের আপন লক্ষ্য রয়েছে যেদিকে সে মুখ করে দাঁড়ায়। তাই ভালো কাজে এগিয়ে থাকার জন্য একে অন্যের সাথে প্রতিযোগিতা করো।</p>
+    <cite>— আল-বাকারাহ ১৪৮</cite>
+  </div>
+
+  <div class="day-selector">
+    <span>দিন দেখুন:</span>
+    <button class="btn active" onclick="setDays(7,this)">৭ দিন</button>
+    <button class="btn" onclick="setDays(15,this)">১৫ দিন</button>
+    <button class="btn" onclick="setDays(31,this)">৩১ দিন</button>
+  </div>
+
+  <div id="mainChecklist"></div>
+
+  <div class="weekly-sec">
+    <div class="sec-head" style="background:var(--teal50)" onclick="toggleSec('wbody','wchev')">
+      <span class="sec-title" style="color:var(--teal800)">সাপ্তাহিক চেকলিস্ট</span>
+      <span class="chevron" id="wchev">&#8964;</span>
+    </div>
+    <div id="wbody">
+      <div class="col-head">
+        <div class="col-head-label">কাজ</div>
+        <div style="display:flex">
+          <div class="ch-day" style="width:65px">১ম সপ্তাহ</div>
+          <div class="ch-day" style="width:65px">২য় সপ্তাহ</div>
+          <div class="ch-day" style="width:65px">৩য় সপ্তাহ</div>
+          <div class="ch-day" style="width:65px">৪র্থ সপ্তাহ</div>
+        </div>
+      </div>
+      <div id="wrows"></div>
+      <div class="add-row" id="weeklyAddRow">
+        <button class="add-btn" onclick="addWeekly()">+</button>
+        <input type="text" id="newW" placeholder="নতুন সাপ্তাহিক আইটেম যোগ করুন..." onkeydown="if(event.key==='Enter')addWeekly()">
+    </div>
+  </div>
+
+  <div class="monthly-sec">
+    <div class="sec-head" style="background:var(--pink50)" onclick="toggleSec('mbody','mchev')">
+      <span class="sec-title" style="color:var(--pink800)">মাসিক চেকলিস্ট</span>
+      <span class="chevron" id="mchev">&#8964;</span>
+    </div>
+    <div id="mbody">
+      <div id="mrows"></div>
+      <div class="add-row" id="monthlyAddRow">
+        <button class="add-btn" onclick="addMonthly()">+</button>
+        <input type="text" id="newM" placeholder="নতুন মাসিক আইটেম যোগ করুন..." onkeydown="if(event.key==='Enter')addMonthly()">
+      </div>
+    </div>
+  </div>
+
+  <div class="heatmap-box">
+    <div class="heatmap-title">&#128200; মাসিক হিটম্যাপ — ৩১ দিনের অগ্রগতি</div>
+    <div class="hm-grid" id="heatmap"></div>
+    <div class="hm-legend">
+      <span>কম</span>
+      <div class="hm-sq" style="background:var(--border)"></div>
+      <div class="hm-sq hm-cell lvl1" style="width:11px;height:11px;border-radius:2px;background:#C0DD97"></div>
+      <div class="hm-sq hm-cell lvl2" style="width:11px;height:11px;border-radius:2px;background:#97C459"></div>
+      <div class="hm-sq hm-cell lvl3" style="width:11px;height:11px;border-radius:2px;background:#639922"></div>
+      <div class="hm-sq hm-cell lvl4" style="width:11px;height:11px;border-radius:2px;background:#27500A"></div>
+      <span>বেশি</span>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <div class="note-head">&#128221; মূল্যায়ন ও নোট</div>
+    <textarea id="noteArea" placeholder="এই মাসের অগ্রগতি, পরিকল্পনা, বা মন্তব্য লিখুন..."></textarea>
+  </div>
+
+  <p style="text-align:center;font-size:11px;color:var(--text3);margin-top:8px">ভাতৃত্ববন্ধন চেকলিস্ট &mdash; সব ডেটা আপনার ডিভাইসে সংরক্ষিত থাকে</p>
+</div>
+
+<script>
+const SECTIONS=[
+  {id:'salat',label:'সালাত',color:'green',bg:'--green50',tc:'--green800',
+   items:['ফজর (জামায়াতে)','যোহর (জামায়াতে)','আসর (জামায়াতে)','মাগরিব (জামায়াতে)','ইশা (জামায়াতে)','সুন্নাত-নফল সালাত আদায় করেছি','সালাত আদ-দুহা আদায় করেছি','তাহাজ্জুদের সালাত (রাতের ৩/৪ অংশে)','ফরজ নামাজের পর যিকিরগুলো পড়েছি(হিসনুল মুসলিম)']},
+  {id:'dua',label:'দুআ ও যিকির',color:'blue',bg:'--blue50',tc:'--blue800',
+   items:['সকালবেলার যিকির-দুআসমূহ পড়েছি','বিকেলবেলার যিকির-দুআসমূহ পড়েছি','তাওবা-ইস্তেগফার (কমপক্ষে ১০০ বার)-সুবহানাল্লাহ-আলহামদুলিল্লাহ-আস্তাগফিরূল্লাহ','প্রত্যহ কুরআন তিলাওয়াত করেছি', 'কুরআন এর অর্থ পড়েছি(কত পৃষ্ঠা)','ঘুমানোর পূর্বে সূরাহ মুলক তিলাওয়াত করেছি','ঘুমাতে যাওয়ার আগের যিকির ও দুআ পাঠ করেছি','রাসুল ﷺ এর উপর দুরুদ পাঠ করেছি','জান্নাত লাভ ও জাহান্নাম থেকে মুক্তির দুআ চেয়েছি','সমগ্র নির্যাতিত মুসলিম উম্মাহ কে দুআতে স্বরণ করেছি']},
+  {id:'hifz',label:'হিফয(মুখস্ত)',color:'purple',bg:'--purple50',tc:'--purple800',
+   items:['একটি আয়াত মুখস্ত করেছি','একটি হাদিস মুখস্ত করেছি','একটি দৈনন্দিন দুআ মুখস্ত করেছি','কুরআন তিলাওয়াত শুনেছি(অডিও)']},
+  {id:'study',label:'পড়াশোনা',color:'amber',bg:'--amber50',tc:'--amber800',
+   items:['BIC থেকে নির্ধারিত বইসমূহ পড়েছি(কত পেইজ দৈনিক)']},
+  {id:'muamalat',label:'মুআমালাত - মুআশারাত',color:'coral',bg:'--coral50',tc:'--coral800',
+   items:['কমপক্ষে একজনকে ইসলাম সম্পর্কে কিছু বলেছি / দাওয়াত দিয়েছি','মিথ্যা বলিনি, গীবত করিনি','কোনো মুসলিমের প্রতি বিদ্বেষ নিয়ে ঘুমাতে যাইনি','অল্প হলেও সাদাকা করেছি']},
+  {id:'other',label:'অন্যান্য আমল',color:'gray',bg:'--gray50',tc:'--gray800',
+   items:['নতুন একটি সুন্নাহ শিখেছি ও চর্চা করেছি','দীনের সংগ্রামের জন্য কমপক্ষে ১০ মিনিট ফিকির করেছি','হারাম পরিত্যাগ এর চেষ্টা করেছি','ঈমানের পর্যালোচনা ও আত্মসমালোচনা করেছি','ব্যায়াম করেছি (কত মিনিট)','উপযুক্ত ঘুম দিয়েছি','মেশওয়াক করেছি','ভাতৃত্ববন্ধনে যুক্ত ভাইয়ের পরিবার ও ব্যক্তিগত কাজের খোজ নিয়েছি']},
+];
+const WEEKLY_DEF=[
+  'শুক্রবারে সূরাহ কাহফ তিলাওয়াত',
+  'জুমুআয় খুতবাহ শুরুর সময়ে গিয়েছি',
+  'বৃহস্পতি ও সোমবারের সিয়াম পালন',
+  'রোগী দেখতে যাওয়া',
+  'কমপক্ষে একজন মুসলিমের কোনো উপকার করা'
+];
+const MONTHLY_DEF=[
+  'আইয়ামে বিজের সিয়াম — ১৩ হিজরী',
+  'আইয়ামে বিজের সিয়াম — ১৪ হিজরী',
+  'আইয়ামে বিজের সিয়াম — ১৫ হিজরী'
+];
+
+let numDays=7, S={}, W={}, Mo={}, darkMode=false;
+const isAdmin = new URLSearchParams(window.location.search).get('admin') === 'true';
+const INPUT_ITEMS = [
+  'উপযুক্ত ঘুম দিয়েছি',
+  'ব্যায়াম করেছি (কয় মিনিট)',
+  'একটি আয়াত মুখস্ত করেছি',
+  'একটি হাদিস মুখস্ত করেছি',
+  'একটি দৈনন্দিন দুআ মুখস্ত করেছি',
+  'BIC থেকে নির্ধারিত বইসমূহ পড়েছি(কত পেইজ দৈনিক)',
+  'নতুন একটি সুন্নাহ শিখেছি ও চর্চা করেছি',
+  'কুরআন এর অর্থ পড়েছি(কত পৃষ্ঠা/সূরার নাম ও আয়াত নম্বর)'
+];
+function initState(){
+  SECTIONS.forEach(sec=>{
+    S[sec.id]={items:[...sec.items],checked:{}};
+    sec.items.forEach((_,i)=>{S[sec.id].checked[i]={}});
+  });
+  WEEKLY_DEF.forEach((t,i)=>{W[i]={label:t,checked:{}}});
+  MONTHLY_DEF.forEach((t,i)=>{Mo[i]={label:t,checked:{}}});
+}
+
+function save(){
+  try{
+    localStorage.setItem('amal_s',JSON.stringify(S));
+    localStorage.setItem('amal_w',JSON.stringify(W));
+    localStorage.setItem('amal_m',JSON.stringify(Mo));
+    localStorage.setItem('amal_dark',darkMode);
+    localStorage.setItem('amal_days',numDays);
+    localStorage.setItem('amal_name',document.getElementById('uname').value);
+    localStorage.setItem('amal_month',document.getElementById('umonth').value);
+    localStorage.setItem('amal_year',document.getElementById('uyear').value);
+    localStorage.setItem('amal_note',document.getElementById('noteArea').value);
+  }catch(e){}
+}
+
+function load(){
+  try{
+    const s=localStorage.getItem('amal_s'); if(s) S=JSON.parse(s);
+    const w=localStorage.getItem('amal_w'); if(w) W=JSON.parse(w);
+    const m=localStorage.getItem('amal_m'); if(m) Mo=JSON.parse(m);
+    const d=localStorage.getItem('amal_dark');
+    if(d==='true'){darkMode=true;document.body.classList.add('dark');document.getElementById('darkBtn').textContent='☀ লাইট মোড'}
+    const dy=localStorage.getItem('amal_days'); if(dy) numDays=parseInt(dy);
+    const n=localStorage.getItem('amal_name'); if(n) document.getElementById('uname').value=n;
+    const mo=localStorage.getItem('amal_month'); if(mo) document.getElementById('umonth').value=mo;
+    const yr=localStorage.getItem('amal_year'); if(yr) document.getElementById('uyear').value=yr;
+    const nt=localStorage.getItem('amal_note'); if(nt) document.getElementById('noteArea').value=nt;
+  }catch(e){}
+}
+
+function toggleDark(){
+  darkMode=!darkMode;
+  document.body.classList.toggle('dark',darkMode);
+  document.getElementById('darkBtn').textContent=darkMode?'☀ লাইট মোড':'☾ ডার্ক মোড';
+  save();
+}
+
+function resetAll(){
+  if(confirm('সব ডেটা মুছে ফেলবেন? এই কাজ ফেরানো যাবে না।')){
+    localStorage.clear(); initState();
+    document.getElementById('uname').value='';
+    document.getElementById('umonth').value='';
+    document.getElementById('uyear').value='';
+    document.getElementById('noteArea').value='';
+    renderAll(); save();
+  }
+}
+
+function setDays(n,btn){
+  numDays=n;
+  document.querySelectorAll('.day-selector .btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAll(); save();
+}
+
+function toggleSec(bodyId,chevId){
+  const b=document.getElementById(bodyId);
+  const c=document.getElementById(chevId);
+  if(b.style.display==='none'){b.style.display='';c.style.transform=''}
+  else{b.style.display='none';c.style.transform='rotate(-90deg)'}
+}
+
+function getDayScore(day){
+  let done=0,total=0;
+  SECTIONS.forEach(sec=>{
+    (S[sec.id]?S[sec.id].items:sec.items).forEach((_,i)=>{
+      total++;
+      if(S[sec.id]&&S[sec.id].checked[i]&&S[sec.id].checked[i][day]) done++;
+    });
+  });
+  return{done,total};
+}
+
+function updateStats(){
+  const d1=getDayScore(1);
+  const pct=d1.total?Math.round(d1.done/d1.total*100):0;
+  document.getElementById('todayPct').textContent=pct+'%';
+  document.getElementById('todaySub').textContent=d1.done+' / '+d1.total+' আমল';
+
+  let maxStreak=0,cur=0;
+  for(let d=1;d<=31;d++){
+    const sc=getDayScore(d);
+    if(sc.total&&sc.done===sc.total){cur++;maxStreak=Math.max(maxStreak,cur)}
+    else cur=0;
+  }
+  document.getElementById('streakVal').textContent=maxStreak+' দিন';
+
+  let bestD=0,bestSc=0;
+  for(let d=1;d<=31;d++){
+    const sc=getDayScore(d);
+    if(sc.done>bestSc){bestSc=sc.done;bestD=d}
+  }
+  document.getElementById('bestDay').textContent=bestD?bestD+' তারিখ':'—';
+
+  let tot=0,pos=0;
+  for(let d=1;d<=numDays;d++){const sc=getDayScore(d);tot+=sc.done;pos+=sc.total}
+  document.getElementById('monthAvg').textContent=pos?Math.round(tot/pos*100)+'%':'0%';
+
+  renderHeatmap();
+}
+
+function renderHeatmap(){
+  const hm=document.getElementById('heatmap');
+  hm.innerHTML='';
+  for(let d=1;d<=31;d++){
+    const sc=getDayScore(d);
+    const r=sc.total?sc.done/sc.total:0;
+    const lvl=r===0?0:r<=0.25?1:r<=0.5?2:r<=0.75?3:4;
+    const cell=document.createElement('div');
+    cell.className='hm-cell'+(lvl?' lvl'+lvl:'');
+    cell.innerHTML='<div class="tip">'+d+' তারিখ: '+Math.round(r*100)+'%</div>';
+    hm.appendChild(cell);
+  }
+}
+
+function secPct(sid){
+  let done=0,total=0;
+  (S[sid]?S[sid].items:[]).forEach((_,i)=>{
+    for(let d=1;d<=numDays;d++){
+      total++;
+      if(S[sid].checked[i]&&S[sid].checked[i][d]) done++;
+    }
+  });
+  return total?Math.round(done/total*100):0;
+}
+
+function renderSection(sid){
+  const cont=document.getElementById('rows_'+sid);
+  if(!cont||!S[sid]) return;
+  const days=Array.from({length:numDays},(_,i)=>i+1);
+  cont.innerHTML='';
+  S[sid].items.forEach((item,ri)=>{
+    const allDone=days.every(d=>S[sid].checked[ri]&&S[sid].checked[ri][d]);
+    const row=document.createElement('div');
+    row.className='row'+(allDone?' completed':'');
+    const lbl=document.createElement('div');
+    lbl.className='row-label';
+let deleteBtnHTML = isAdmin ? '<button class="del-btn" onclick="delItem(\''+sid+'\','+ri+')" title="মুছুন">✕</button>' : '';
+    lbl.innerHTML='<span>'+item+'</span>' + deleteBtnHTML;
+    const cells=document.createElement('div');
+    cells.className='day-cells';
+const isInputItem = INPUT_ITEMS.includes(item);
+    days.forEach(d=>{
+      const on=S[sid].checked[ri]&&S[sid].checked[ri][d];
+      const dc=document.createElement('div');
+      dc.className='dc'+(on?' on':'');
+      
+      if(on) {
+        if(isInputItem && typeof on === 'string') {
+          // Show pen icon for text inputs and show the text on hover
+          dc.innerHTML='<b style="font-size:12px" title="'+on+'">✎</b>';
+          dc.title = on; 
+        } else {
+          // Standard checkmark for yes/no items
+          dc.innerHTML='<b style="font-size:12px">✓</b>';
+        }
+      } else {
+        dc.innerHTML='<span>'+d+'</span>';
+      }
+      
+      dc.onclick=()=>toggleCell(sid,ri,d);
+      cells.appendChild(dc);
+    });
+    row.appendChild(lbl); row.appendChild(cells);
+    cont.appendChild(row);
+  });
+  const pct=secPct(sid);
+  const pb=document.getElementById('pb_'+sid);
+  const pc=document.getElementById('pc_'+sid);
+  if(pb) pb.style.width=pct+'%';
+  if(pc) pc.textContent=pct+'%';
+}
+
+function toggleCell(sid,ri,day){
+  if(!S[sid].checked[ri]) S[sid].checked[ri]={};
+  
+  const itemName = S[sid].items[ri];
+  const isInputItem = INPUT_ITEMS.includes(itemName);
+
+  if(isInputItem) {
+    const currentVal = S[sid].checked[ri][day] || '';
+    // Show a popup to get text input
+    const newVal = prompt(itemName + '\nবিস্তারিত লিখুন (যেমন: ১০ মিনিট,পৃষ্ঠা নং(৫-১০),সূরা ইয়াসিন-আয়াত ১০,সিজদাহ এ পঠিত দুয়া ইত্যাদি):', currentVal === true ? '' : currentVal);
+    
+    if(newVal === null) return; // User clicked Cancel
+    
+    if(newVal.trim() === '') {
+      delete S[sid].checked[ri][day]; // Uncheck the box if they leave it empty
+    } else {
+      S[sid].checked[ri][day] = newVal.trim(); // Save their custom text
+    }
+  } else {
+    // Normal Yes/No toggle for regular items
+    if(S[sid].checked[ri][day]) {
+      delete S[sid].checked[ri][day];
+    } else {
+      S[sid].checked[ri][day] = true;
+    }
+  }
+  
+  renderSection(sid); updateStats(); save();
+}
+function delItem(sid,ri){
+  S[sid].items.splice(ri,1);
+  const nc={};
+  Object.keys(S[sid].checked).filter(k=>parseInt(k)!==ri)
+    .forEach((k,i)=>{nc[i]=S[sid].checked[k]});
+  S[sid].checked=nc;
+  renderSection(sid); updateStats(); save();
+}
+
+function addItem(sid){
+  const inp=document.getElementById('newinp_'+sid);
+  const v=inp.value.trim(); if(!v) return;
+  const ri=S[sid].items.length;
+  S[sid].items.push(v); S[sid].checked[ri]={};
+  inp.value=''; renderSection(sid); updateStats(); save();
+}
+
+function renderWeekly(){
+  const cont=document.getElementById('wrows'); cont.innerHTML='';
+  Object.keys(W).forEach(ri=>{
+    const item=W[ri];
+    const row=document.createElement('div'); row.className='wrow';
+    row.innerHTML='<div class="wlabel">'+item.label+'</div>'+
+      [1,2,3,4].map(w=>'<div class="wcell'+(item.checked[w]?' on':'')+
+        '" onclick="toggleWeekly('+ri+','+w+')" style="min-width:65px">'+
+        (item.checked[w]?'✓':'সপ্তাহ '+w)+'</div>').join('');
+    cont.appendChild(row);
+  });
+}
+
+function toggleWeekly(ri,w){W[ri].checked[w]=!W[ri].checked[w];renderWeekly();save()}
+
+function addWeekly(){
+  const inp=document.getElementById('newW'); const v=inp.value.trim(); if(!v) return;
+  const i=Object.keys(W).length; W[i]={label:v,checked:{}}; inp.value=''; renderWeekly(); save();
+}
+
+function renderMonthly(){
+  const cont=document.getElementById('mrows'); cont.innerHTML='';
+  Object.keys(Mo).forEach(ri=>{
+    const item=Mo[ri];
+    const row=document.createElement('div'); row.className='mrow';
+    row.innerHTML='<div class="mlabel">'+item.label+'</div>'+
+      [13,14,15].map(d=>'<div class="mcell'+(item.checked[d]?' on':'')+
+        '" onclick="toggleMonthly('+ri+','+d+')">'+
+        (item.checked[d]?'✓':d)+'</div>').join('');
+    cont.appendChild(row);
+  });
+}
+
+function toggleMonthly(ri,d){Mo[ri].checked[d]=!Mo[ri].checked[d];renderMonthly();save()}
+
+function addMonthly(){
+  const inp=document.getElementById('newM'); const v=inp.value.trim(); if(!v) return;
+  const i=Object.keys(Mo).length; Mo[i]={label:v,checked:{}}; inp.value=''; renderMonthly(); save();
+}
+
+function renderMain(){
+  const cont=document.getElementById('mainChecklist'); cont.innerHTML='';
+  const days=Array.from({length:numDays},(_,i)=>i+1);
+  SECTIONS.forEach(sec=>{
+    const pct=secPct(sec.id);
+    const div=document.createElement('div'); div.className='section';
+div.innerHTML=
+      '<div class="sec-head" style="background:var('+sec.bg+')" onclick="toggleSec(\'secbody_'+sec.id+'\',\'secchev_'+sec.id+'\')">'+
+        '<span class="sec-title" style="color:var('+sec.tc+')">'+sec.label+'</span>'+
+        '<div class="sec-right">'+
+          '<div class="pbar-wrap"><div class="pbar '+sec.color+'" id="pb_'+sec.id+'" style="width:'+pct+'%"></div></div>'+
+          '<span class="pct" id="pc_'+sec.id+'">'+pct+'%</span>'+
+          '<span class="chevron" id="secchev_'+sec.id+'">&#8964;</span>'+
+        '</div>'+
+      '</div>'+
+      '<div id="secbody_'+sec.id+'">'+
+        '<div class="col-head">'+
+          '<div class="col-head-label">কাজ</div>'+
+          '<div class="col-head-days">'+days.map(d=>'<div class="ch-day">'+d+'</div>').join('')+'</div>'+
+        '</div>'+
+        '<div id="rows_'+sec.id+'"></div>'+
+        (isAdmin ? 
+          '<div class="add-row">'+
+            '<button class="add-btn" onclick="addItem(\''+sec.id+'\')">+</button>'+
+            '<input type="text" id="newinp_'+sec.id+'" placeholder="নতুন আইটেম যোগ করুন..." onkeydown="if(event.key===\'Enter\')addItem(\''+sec.id+'\')">'+
+          '</div>' 
+        : '') +
+      '</div>';
+      
+    cont.appendChild(div);
+    renderSection(sec.id);
+  });
+}
+
+function renderAll(){renderMain();renderWeekly();renderMonthly();updateStats()}
+
+document.querySelectorAll('#uname,#umonth,#uyear,#noteArea').forEach(el=>{
+  el.addEventListener('input',save);
+});
+
+initState(); load(); renderAll();
+// Hide static add rows if not admin
+if (!isAdmin) {
+  const wRow = document.getElementById('weeklyAddRow');
+  const mRow = document.getElementById('monthlyAddRow');
+  if (wRow) wRow.style.display = 'none';
+  if (mRow) mRow.style.display = 'none';
+}
+const savedDays=localStorage.getItem('amal_days');
+if(savedDays){
+  numDays=parseInt(savedDays);
+  document.querySelectorAll('.day-selector .btn').forEach(b=>{
+    b.classList.remove('active');
+    if(b.textContent.includes(numDays===7?'৭':numDays===15?'১৫':'৩১')) b.classList.add('active');
+  });
+}
+</script>
+</body>
+</html>
