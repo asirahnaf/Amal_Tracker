@@ -76,6 +76,62 @@ body{
 }
 .quote p{font-size:13px;color:var(--green800);line-height:1.7}
 .quote cite{font-size:11px;color:var(--green600);display:block;margin-top:4px}
+/* ── Watermark & Topbar Logo ── */
+body::after {
+  content: "";
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 60vmin;
+  height: 60vmin;
+  transform: translate(-50%, -50%);
+  background: url('BUIC_logo.jpg') center/contain no-repeat;
+  opacity: 0.04; /* অত্যন্ত হালকা জলছাপ */
+  pointer-events: none;
+  z-index: -1;
+}
+.title-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.buic-logo {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+
+/* ── Description Box ── */
+.desc-box {
+  background: var(--bg2);
+  border-left: 3px solid var(--gray800);
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+.desc-box strong { color: var(--text); font-size: 14px;}
+
+/* ── Dynamic Quotes (Quran & Hadith) ── */
+.quote-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+@media(max-width: 600px) {
+  .quote-container { grid-template-columns: 1fr; }
+}
+.quote.hadith {
+  border-left-color: #378ADD; /* Blue border for hadith */
+  background: var(--blue50);
+}
+.quote.hadith p { color: var(--blue800); }
+.quote.hadith cite { color: #378ADD; }
 /* ── day selector ── */
 .day-selector{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .day-selector span{font-size:12px;color:var(--text3)}
@@ -214,13 +270,21 @@ body{
 <body>
 <div class="wrap">
 
-  <div class="topbar">
-    <h1>&#x1F4D6; দৈনিক আমল চেকলিস্ট</h1>
+<div class="topbar">
+    <div class="title-area">
+      <img src="BUIC_logo.jpg" alt="BUIC Logo" class="buic-logo">
+      <h1>&#x1F4D6; BUIC ভাতৃত্ববন্ধন চার্ট ও দৈনিক আমল চেকলিস্ট</h1>
+    </div>
     <div class="topbar-right">
       <button class="btn" id="darkBtn" onclick="toggleDark()">&#9790; ডার্ক মোড</button>
       <button class="btn" onclick="window.print()">&#128438; প্রিন্ট</button>
-      <button class="btn" onclick="resetAll()">&#8635; রিসেট</button>
+      <button class="btn" id="resetBtn" onclick="resetAll()">&#8635; রিসেট</button>
     </div>
+  </div>
+
+  <div class="desc-box">
+    <strong>ভাতৃত্ববন্ধন চার্ট: অনুপ্রেরণা, উদ্দেশ্য ও করণীয়</strong><br>
+    রাসূল (সাঃ) এর মদিনার মুহাজির-আনসার ভাতৃত্ববন্ধনের অনুপ্রেরণায়, এই চার্টের উদ্দেশ্য হলো আমাদের কমিউনিটির ভাইদের মাঝে আত্মিক সম্পর্ক স্থাপন। একে অপরের দ্বীনের ফিকির, আমলের খোঁজ নেওয়া এবং ব্যক্তিগত, পারিবারিক ও একাডেমিক সমস্যায় সাধ্যমতো সাহায্য করার মাধ্যমে ঐক্যবদ্ধভাবে দ্বীনের কাজে অবদান রাখাই আমাদের মূল লক্ষ্য।
   </div>
 
   <div class="meta">
@@ -230,31 +294,21 @@ body{
   </div>
 
   <div class="stats">
-    <div class="stat">
-      <div class="stat-label">আজকের অগ্রগতি (দিন ১)</div>
-      <div class="stat-val" id="todayPct">0%</div>
-      <div class="stat-sub" id="todaySub">০ / ০ আমল</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">সর্বোচ্চ স্ট্রিক &#9733;</div>
-      <div class="stat-val" id="streakVal">0 দিন</div>
-      <div class="stat-sub">ধারাবাহিক সম্পন্ন</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">সেরা দিন</div>
-      <div class="stat-val" id="bestDay">—</div>
-      <div class="stat-sub">সর্বোচ্চ আমল সম্পন্ন</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">মাসিক গড়</div>
-      <div class="stat-val" id="monthAvg">0%</div>
-      <div class="stat-sub">সম্পন্নের হার</div>
-    </div>
+    <div class="stat"><div class="stat-label">আজকের অগ্রগতি (দিন ১)</div><div class="stat-val" id="todayPct">0%</div><div class="stat-sub" id="todaySub">০ / ০ আমল</div></div>
+    <div class="stat"><div class="stat-label">সর্বোচ্চ স্ট্রিক &#9733;</div><div class="stat-val" id="streakVal">0 দিন</div><div class="stat-sub">ধারাবাহিক সম্পন্ন</div></div>
+    <div class="stat"><div class="stat-label">সেরা দিন</div><div class="stat-val" id="bestDay">—</div><div class="stat-sub">সর্বোচ্চ আমল সম্পন্ন</div></div>
+    <div class="stat"><div class="stat-label">মাসিক গড়</div><div class="stat-val" id="monthAvg">0%</div><div class="stat-sub">সম্পন্নের হার</div></div>
   </div>
 
-  <div class="quote">
-    <p>প্রত্যেকের আপন লক্ষ্য রয়েছে যেদিকে সে মুখ করে দাঁড়ায়। তাই ভালো কাজে এগিয়ে থাকার জন্য একে অন্যের সাথে প্রতিযোগিতা করো।</p>
-    <cite>— আল-বাকারাহ ১৪৮</cite>
+  <div class="quote-container">
+    <div class="quote" id="quranQuoteBox">
+      <p id="quranText">প্রত্যেকের আপন লক্ষ্য রয়েছে যেদিকে সে মুখ করে দাঁড়ায়। তাই ভালো কাজে এগিয়ে থাকার জন্য একে অন্যের সাথে প্রতিযোগিতা করো।</p>
+      <cite id="quranCite">— আল-বাকারাহ ১৪৮</cite>
+    </div>
+    <div class="quote hadith" id="hadithQuoteBox">
+      <p id="hadithText">এক মুমিন অপর মুমিনের জন্য একটি ইমারত বা দালানস্বরূপ, যার একাংশ অপর অংশকে শক্তিশালী করে।</p>
+      <cite id="hadithCite">— সহীহ বুখারী: ৪৮১</cite>
+    </div>
   </div>
 
   <div class="day-selector">
@@ -325,9 +379,33 @@ body{
 </div>
 
 <script>
+const QURAN_QUOTES = [
+  { text: "প্রত্যেকের আপন লক্ষ্য রয়েছে যেদিকে সে মুখ করে দাঁড়ায়। তাই ভালো কাজে এগিয়ে থাকার জন্য একে অন্যের সাথে প্রতিযোগিতা করো।", cite: "— সূরা আল-বাকারাহ: ১৪৮" },
+  { text: "তোমরা সকলে মিলে আল্লাহর রজ্জু শক্তভাবে ধারণ করো এবং পরস্পর বিচ্ছিন্ন হয়ো না।", cite: "— সূরা আলে-ইমরান: ১০৩" },
+  { text: "মুমিনগণ তো পরস্পর ভাই ভাই; কাজেই তোমরা তোমাদের ভাইদের মধ্যে আপোষ-মীমাংসা করে দাও।", cite: "— সূরা আল-হুজুরাত: ১০" },
+  { text: "নেক কাজ ও তাকওয়ায় তোমরা পরস্পরকে সাহায্য করো, এবং পাপ ও সীমালঙ্ঘনে একে অন্যের সাহায্য কোরো না।", cite: "— সূরা আল-মায়িদাহ: ২" }
+];
+
+const HADITH_QUOTES = [
+  { text: "এক মুমিন অপর মুমিনের জন্য একটি ইমারত বা দালানস্বরূপ, যার একাংশ অপর অংশকে শক্তিশালী করে।", cite: "— সহীহ বুখারী: ৪৮১" },
+  { text: "তোমাদের কেউ প্রকৃত মুমিন হতে পারবে না, যতক্ষণ না সে তার ভাইয়ের জন্য তা-ই পছন্দ করবে, যা সে নিজের জন্য পছন্দ করে।", cite: "— সহীহ বুখারী: ১৩" },
+  { text: "যে ব্যক্তি তার ভাইয়ের প্রয়োজনে পাশে দাঁড়াবে, আল্লাহ তার প্রয়োজনে পাশে দাঁড়াবেন।", cite: "— সহীহ বুখারী: ২৪৪২" },
+  { text: "পারস্পরিক ভালোবাসা, দয়া ও সহানুভূতির দিক থেকে মুমিনদের দৃষ্টান্ত একটি দেহের মতো।", cite: "— সহীহ মুসলিম: ২৫৮৬" }
+];
+
+function randomizeQuotes() {
+  const q = QURAN_QUOTES[Math.floor(Math.random() * QURAN_QUOTES.length)];
+  const h = HADITH_QUOTES[Math.floor(Math.random() * HADITH_QUOTES.length)];
+  
+  document.getElementById('quranText').textContent = q.text;
+  document.getElementById('quranCite').textContent = q.cite;
+  
+  document.getElementById('hadithText').textContent = h.text;
+  document.getElementById('hadithCite').textContent = h.cite;
+}
 const SECTIONS=[
   {id:'salat',label:'সালাত',color:'green',bg:'--green50',tc:'--green800',
-   items:['ফজর (জামায়াতে)','যোহর (জামায়াতে)','আসর (জামায়াতে)','মাগরিব (জামায়াতে)','ইশা (জামায়াতে)','সুন্নাত-নফল সালাত আদায় করেছি','সালাত আদ-দুহা আদায় করেছি','তাহাজ্জুদের সালাত (রাতের ৩/৪ অংশে)','ফরজ নামাজের পর যিকিরগুলো পড়েছি(হিসনুল মুসলিম)']},
+   items:['ফজর (জামায়াতে)','যোহর (জামায়াতে)','আসর (জামায়াতে)','মাগরিব (জামায়াতে)','ইশা (জামায়াতে)','সুন্নাতে মুয়াক্কাদা(১২ রাকায়াত)আদায় করেছি','সালাত আদ-দুহা আদায় করেছি','তাহাজ্জুদের সালাত (রাতের ৩/৪ অংশে)','ফরজ নামাজের পর যিকিরগুলো পড়েছি(হিসনুল মুসলিম)']},
   {id:'dua',label:'দুআ ও যিকির',color:'blue',bg:'--blue50',tc:'--blue800',
    items:['সকালবেলার যিকির-দুআসমূহ পড়েছি','বিকেলবেলার যিকির-দুআসমূহ পড়েছি','তাওবা-ইস্তেগফার (কমপক্ষে ১০০ বার)-সুবহানাল্লাহ-আলহামদুলিল্লাহ-আস্তাগফিরূল্লাহ','প্রত্যহ কুরআন তিলাওয়াত করেছি', 'কুরআন এর অর্থ পড়েছি(কত পৃষ্ঠা)','ঘুমানোর পূর্বে সূরাহ মুলক তিলাওয়াত করেছি','ঘুমাতে যাওয়ার আগের যিকির ও দুআ পাঠ করেছি','রাসুল ﷺ এর উপর দুরুদ পাঠ করেছি','জান্নাত লাভ ও জাহান্নাম থেকে মুক্তির দুআ চেয়েছি','সমগ্র নির্যাতিত মুসলিম উম্মাহ কে দুআতে স্বরণ করেছি']},
   {id:'hifz',label:'হিফয(মুখস্ত)',color:'purple',bg:'--purple50',tc:'--purple800',
@@ -672,12 +750,19 @@ document.querySelectorAll('#uname,#umonth,#uyear,#noteArea').forEach(el=>{
 });
 
 initState(); load(); renderAll();
+// কোটেশন রেন্ডমাইজ করা এবং প্রতি ৩০ সেকেন্ড পরপর পরিবর্তন করা
+randomizeQuotes();
+setInterval(randomizeQuotes, 30000); // 30,000 milliseconds = 30 seconds
 // Hide static add rows if not admin
+// Hide static add rows and reset button if not admin
 if (!isAdmin) {
   const wRow = document.getElementById('weeklyAddRow');
   const mRow = document.getElementById('monthlyAddRow');
+  const resetBtn = document.getElementById('resetBtn'); // Reset button ধরি
+  
   if (wRow) wRow.style.display = 'none';
   if (mRow) mRow.style.display = 'none';
+  if (resetBtn) resetBtn.style.display = 'none'; // Admin না হলে Reset বাটন গায়েব
 }
 const savedDays=localStorage.getItem('amal_days');
 if(savedDays){
